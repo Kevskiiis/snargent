@@ -1,0 +1,29 @@
+{
+  "name": "snargent-dev-container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next"
+      ]
+    }
+  },
+  "forwardPorts": [5173, 3000],
+  "portsAttributes": {
+    "5173": {
+      "label": "Frontend",
+      "onAutoForward": "notify"
+    },
+    "3000": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "make install",
+  "remoteUser": "node"
+}

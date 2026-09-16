@@ -1,0 +1,20 @@
+{
+  "name": "snargent-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "dev": "tsx watch server.ts",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "fastify": "^5.12.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
