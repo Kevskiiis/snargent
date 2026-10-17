@@ -1,8 +1,8 @@
 # Snargent
 
 Snargent is a full-stack application with a Vite/React frontend and a
-Fastify/TypeScript backend. The recommended development environment is the
-VS Code Dev Container included in this repository.
+Fastify/TypeScript backend. You can develop locally with Node.js; Docker and
+the VS Code Dev Containers extension are not required.
 
 ## Setup
 
@@ -10,63 +10,43 @@ VS Code Dev Container included in this repository.
 
 Install these tools on your computer:
 
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) or another
-	Docker Engine compatible with VS Code Dev Containers
-- The VS Code
-	[Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+- [Node.js 22](https://nodejs.org/) (npm is included with Node.js)
+- Git
+- GNU Make
 
-You do not need to install Node.js, npm, TypeScript, or Make on your host
-machine. They are provided by the development container.
+Visual Studio Code is optional; any editor can be used. On Windows, use WSL2
+with Node.js 22, Git, and Make installed inside the WSL distribution, or use
+another environment that provides Make.
 
-Make sure Docker Desktop is running before opening the project in the
-container. On Linux, make sure your user can run Docker without `sudo`.
-
-### 2. Get the repository
-
-Clone the repository, then open the repository folder in VS Code:
-
-```bash
-git clone <repository-url>
-cd snargent
-code .
-```
-
-The folder you open must be the project root. It is the folder containing
-`Makefile`, `frontend`, `backend`, and `.devcontainer`.
-
-### 3. Reopen the project in the container
-
-When VS Code detects `.devcontainer/devcontainer.json`, it may show a
-notification asking whether to reopen the folder in a container. Select
-**Reopen in Container**.
-
-If the notification does not appear:
-
-1. Open the Command Palette with `Ctrl+Shift+P` on Windows/Linux or
-	 `Cmd+Shift+P` on macOS.
-2. Run **Dev Containers: Reopen in Container**.
-3. Wait for Docker to build the image and for VS Code to reconnect.
-
-The first build can take a few minutes. The container uses Node 22 and
-installs the system tools needed by the project, including `make` and `git`.
-
-After the container is created, its `postCreateCommand` runs `make install`.
-That installs dependencies for both the frontend and backend. Wait for this
-command to finish before starting the application.
-
-You can confirm that the terminal is inside the container by running:
+Check that the tools are available:
 
 ```bash
 node --version
 npm --version
+git --version
 make --version
 ```
 
-### 4. Configure the backend environment
+### 2. Get the repository
+
+Clone the repository and change to its root directory:
+
+```bash
+git clone <repository-url>
+cd snargent
+```
+
+Run the following from the project root to install frontend and backend
+dependencies:
+
+```bash
+make install
+```
+
+### 3. Configure the backend environment
 
 The backend has sensible development defaults. To create an explicit local
-configuration, run this from the project root inside the container:
+configuration, run this from the project root:
 
 ```bash
 cp backend/.env.example backend/.env
@@ -84,8 +64,7 @@ values to `backend/.env.example`.
 
 ## Run the application
 
-Open a terminal in VS Code, make sure the terminal is in `/workspace`, and
-run:
+From the project root, start both development servers:
 
 ```bash
 make dev
@@ -107,13 +86,9 @@ The frontend and backend run in watch mode, so source changes are picked up
 automatically. Keep the terminal running while developing. Press `Ctrl+C` to
 stop both services.
 
-VS Code forwards ports `5173` and `3000` from the container to your computer.
-If VS Code shows a forwarded-port notification, use the provided link or the
-local URLs above.
-
 ## Common commands
 
-Run these commands from the project root inside the container:
+Run these commands from the project root:
 
 ```bash
 make install  # Install frontend and backend dependencies
@@ -155,15 +130,9 @@ npm --prefix backend start
 
 ## Troubleshooting
 
-### The container will not build
-
-Confirm Docker Desktop is running, then run **Dev Containers: Rebuild
-Container** from the VS Code Command Palette. Rebuilding is safe; dependency
-installation runs again after the container is recreated.
-
 ### Dependencies are missing
 
-Run this from the project root inside the container:
+Run this from the project root:
 
 ```bash
 make install
@@ -171,17 +140,17 @@ make install
 
 If the installation is corrupted, run `make clean`, then `make install`.
 
+### `make`, `node`, or `npm` is not found
+
+Install the missing tool and make sure it is on your `PATH`. On Windows, use
+WSL2 or another environment that provides GNU Make, and install Node.js inside
+that environment.
+
 ### Port 3000 or 5173 is already in use
 
 Stop the process using the port, or change the backend `PORT` in
 `backend/.env`. The frontend port can be changed in the Vite configuration.
-Keep the forwarded-port configuration and the service configuration aligned.
-
-### `make` or `node` is not found
-
-Check that the VS Code window says **Dev Container** in the lower-left corner.
-If it does not, run **Dev Containers: Reopen in Container** and open a new
-terminal after VS Code reconnects.
+Use the updated port when opening the frontend or backend in your browser.
 
 ### The frontend loads but API requests fail
 
