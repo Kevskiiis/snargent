@@ -1,8 +1,15 @@
 # Snargent
 
-Snargent is a full-stack application with a Vite/React frontend and a
-Fastify/TypeScript backend. You can develop locally with Node.js; Docker and
-the VS Code Dev Containers extension are not required.
+Snargent is a local benchmark for studying whether an AI agent follows
+instructions embedded in webpage content instead of its assigned task. It is
+for the university security research assignment **Track A: AI Agent Trap and
+Remediation**. This is not a functioning account system. Use synthetic test
+data only; never enter real credentials or personal information, and do not
+use this application against real users.
+
+The app consists of a Vite/React frontend and a Fastify/TypeScript backend.
+The backend stores only event metadata and submitted field names in memory; it
+never stores field values. Docker and a database are not required.
 
 ## Setup
 
@@ -36,82 +43,47 @@ git clone <repository-url>
 cd snargent
 ```
 
-Run the following from the project root to install frontend and backend
-dependencies:
+Install and start the backend in one terminal:
 
 ```bash
-make install
+cd backend
+cp .env.example .env
+npm install
+npm run dev
 ```
 
-### 3. Configure the backend environment
-
-The backend has sensible development defaults. To create an explicit local
-configuration, run this from the project root:
+Install and start the frontend in a second terminal:
 
 ```bash
-cp backend/.env.example backend/.env
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
 ```
 
-The local `.env` file is ignored by Git. The default values are:
+Open <http://localhost:5173>. The backend listens on
+<http://localhost:8000>; its health check is <http://localhost:8000/health>
+and the in-memory event log is available at <http://localhost:8000/log>.
 
-```dotenv
-HOST=0.0.0.0
-PORT=3000
-```
-
-Do not commit secrets or personal environment files. Add only safe example
-values to `backend/.env.example`.
-
-## Run the application
-
-From the project root, start both development servers:
-
-```bash
-make dev
-```
-
-This starts both services:
-
-- Frontend: Vite on port `5173`
-- Backend: Fastify on port `3000`
-
-Open the frontend at <http://localhost:5173>. The backend health check is
-available at <http://localhost:3000/health> and should return:
+The health endpoint should return:
 
 ```json
 {"status":"ok"}
 ```
 
-The frontend and backend run in watch mode, so source changes are picked up
-automatically. Keep the terminal running while developing. Press `Ctrl+C` to
-stop both services.
+Both servers run in watch mode. Keep both terminals open while developing;
+press `Ctrl+C` in each to stop the services. The browser origin is restricted
+to `http://localhost:5173`.
 
 ## Common commands
 
-Run these commands from the project root:
+Run these commands from the relevant `frontend` or `backend` directory:
 
 ```bash
-make install  # Install frontend and backend dependencies
-make dev      # Start frontend and backend development servers
-make build    # Build frontend and backend
-make check    # Type-check the backend
-make lint     # Lint the frontend
-make clean    # Remove generated build output
-make preview  # Serve the built frontend locally
-```
-
-For a production-style local check, build first and then preview the frontend:
-
-```bash
-make build
-make preview
-```
-
-The backend production entrypoint is generated at `backend/dist/server.js` by
-`make build`. It can be started separately with:
-
-```bash
-npm --prefix backend start
+npm install     # Install dependencies
+npm run dev     # Start the development server
+npm run check   # Type-check the application
+npm run build   # Build the application
 ```
 
 ## Project layout
@@ -124,7 +96,6 @@ npm --prefix backend start
 │   └── server.ts     # Backend entrypoint
 ├── frontend/
 │   └── src/          # React application source
-├── .devcontainer/    # Dev Container image and VS Code settings
 └── Makefile          # Project-wide development commands
 ```
 
@@ -132,28 +103,22 @@ npm --prefix backend start
 
 ### Dependencies are missing
 
-Run this from the project root:
-
-```bash
-make install
-```
-
-If the installation is corrupted, run `make clean`, then `make install`.
+Run `npm install` again from the affected `frontend` or `backend` directory.
 
 ### `make`, `node`, or `npm` is not found
 
 Install the missing tool and make sure it is on your `PATH`. On Windows, use
 WSL2 or another environment that provides GNU Make, and install Node.js inside
-that environment.
+that environment. GNU Make is not needed for the separate-terminal setup above.
 
-### Port 3000 or 5173 is already in use
+### Port 8000 or 5173 is already in use
 
-Stop the process using the port, or change the backend `PORT` in
-`backend/.env`. The frontend port can be changed in the Vite configuration.
-Use the updated port when opening the frontend or backend in your browser.
+Stop the process using the port. The backend port can be changed with `PORT`
+in `backend/.env.example` and the frontend API address with
+`VITE_BACKEND_URL` in `frontend/.env`.
 
 ### The frontend loads but API requests fail
 
-Confirm that `make dev` started both processes and that
-<http://localhost:3000/health> responds. Check the backend terminal for the
+Confirm that both servers are running and that
+<http://localhost:8000/health> responds. Check the backend terminal for the
 startup error before changing frontend code.
