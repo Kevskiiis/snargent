@@ -36,55 +36,96 @@ make --version
 
 ### 2. Get the repository
 
-Clone the repository and change to its root directory:
-
 ```bash
-git clone <repository-url>
+git clone https://github.com/Kevskiiis/snargent.git
 cd snargent
 ```
 
-Install and start the backend in one terminal:
+### 3. Install dependencies
+
+From the repository root:
 
 ```bash
+make install
+```
+
+This runs `npm install` in both `frontend/` and `backend/`.
+
+### 4. Configure environment (optional)
+
+The defaults work without any configuration. Only create these files if you
+need to change a port or the backend host:
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+- `backend/.env`: `PORT` (default `8000`) and `HOST` (default `127.0.0.1`).
+- `frontend/.env`: `VITE_BACKEND_URL` (default `http://localhost:8000`). If you
+  change `PORT`, update this value to match.
+
+Keep `HOST=127.0.0.1` unless you need another machine to reach the backend.
+Setting `HOST=0.0.0.0` exposes the event log to your network.
+
+The `.env` files are ignored by Git. Restart `make dev` after editing them.
+
+### 5. Start both servers
+From the repository root:
+
+```bash
+make dev
+```
+
+This starts the frontend and backend together in one terminal. Then open:
+
+| Resource | URL |
+| --- | --- |
+| Article page (`/`) | <http://localhost:5173> |
+| Signup page | <http://localhost:5173/signup> |
+| Login page | <http://localhost:5173/login> |
+| Backend health check | <http://localhost:8000/health> (returns `{"status":"ok"}`) |
+| In-memory event log | <http://localhost:8000/log> |
+
+Press `Ctrl+C` in the terminal to stop both servers. The Vite dev server
+listens on all network interfaces (`--host 0.0.0.0`), so the frontend is
+reachable from other devices on your network. The backend CORS policy allows
+only `http://localhost:5173`.
+
+### Running without Make
+
+Use two terminals, one per application:
+
+```bash
+# Terminal 1: backend
 cd backend
-cp .env.example .env
 npm install
 npm run dev
 ```
 
-Install and start the frontend in a second terminal:
-
 ```bash
+# Terminal 2: frontend
 cd frontend
-cp .env.example .env
 npm install
 npm run dev
 ```
 
-Open <http://localhost:5173>. The backend listens on
-<http://localhost:8000>; its health check is <http://localhost:8000/health>
-and the in-memory event log is available at <http://localhost:8000/log>.
+## Make targets
 
-The health endpoint should return:
+Run these from the repository root:
 
-```json
-{"status":"ok"}
-```
+| Command | What it does |
+| --- | --- |
+| `make install` | Install frontend and backend dependencies |
+| `make dev` | Start the frontend (port 5173) and backend (port 8000) together |
+| `make build` | Build the backend and the frontend |
+| `make check` | Type-check the backend |
+| `make lint` | Lint the frontend with ESLint |
+| `make preview` | Serve the production frontend build (run `make build` first) |
+| `make clean` | Delete `dist/` and `.vite/` build output |
 
-Both servers run in watch mode. Keep both terminals open while developing;
-press `Ctrl+C` in each to stop the services. The browser origin is restricted
-to `http://localhost:5173`.
-
-## Common commands
-
-Run these commands from the relevant `frontend` or `backend` directory:
-
-```bash
-npm install     # Install dependencies
-npm run dev     # Start the development server
-npm run check   # Type-check the application
-npm run build   # Build the application
-```
+The frontend type-check is included in its build. To run it alone, use
+`npm --prefix frontend run check`.
 
 ## Project layout
 
@@ -92,10 +133,13 @@ npm run build   # Build the application
 .
 ├── backend/
 │   ├── config/       # Environment-backed settings
-│   ├── routes/       # Fastify routes
-│   └── server.ts     # Backend entrypoint
+│   ├── routes/       # Fastify routes (/health, /log)
+│   └── server.ts     # Backend entrypoint and CORS policy
 ├── frontend/
-│   └── src/          # React application source
+│   └── src/
+│       ├── api/          # sendLog shared logging function
+│       ├── components/   # Shared form and page-view logger
+│       └── pages/        # Article, signup, and login pages
 └── Makefile          # Project-wide development commands
 ```
 
@@ -103,22 +147,31 @@ npm run build   # Build the application
 
 ### Dependencies are missing
 
-Run `npm install` again from the affected `frontend` or `backend` directory.
+Run `make install` from the repository root, or run `npm install` in the
+affected `frontend/` or `backend/` directory.
 
 ### `make`, `node`, or `npm` is not found
 
-Install the missing tool and make sure it is on your `PATH`. On Windows, use
-WSL2 or another environment that provides GNU Make, and install Node.js inside
-that environment. GNU Make is not needed for the separate-terminal setup above.
+Install the missing tool and make sure it is on your `PATH`. On Windows, run
+everything inside WSL2 (Ubuntu or another distribution) with Node.js 22, Git,
+and Make installed there.
 
 ### Port 8000 or 5173 is already in use
 
-Stop the process using the port. The backend port can be changed with `PORT`
-in `backend/.env.example` and the frontend API address with
-`VITE_BACKEND_URL` in `frontend/.env`.
+Find the process with `lsof -i :8000` (or `:5173`) and stop it. Alternatively,
+change `PORT` in `backend/.env` and `VITE_BACKEND_URL` in `frontend/.env` to
+match.
 
-### The frontend loads but API requests fail
+### The frontend loads but logging or API requests fail
 
-Confirm that both servers are running and that
-<http://localhost:8000/health> responds. Check the backend terminal for the
-startup error before changing frontend code.
+The frontend is calling a different backend address from the one that is
+running. The backend port comes from `PORT` in `backend/.env` (default `8000` when unset),
+and the frontend uses `VITE_BACKEND_URL` in `frontend/.env` (default
+`http://localhost:8000`). Make sure these match, then
+restart `make dev`. Confirm the backend responds with
+`curl http://localhost:<PORT>/health`.
+
+### Changes to `.env` files have no effect
+
+Stop `make dev` with `Ctrl+C`, then start it again. Vite reads environment
+variables only at startup.
