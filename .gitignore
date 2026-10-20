@@ -33,3 +33,10 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+# Python harness and local tooling
+__pycache__/
+*.py[cod]
+.venv/
+harness/results/
+/tmp/
