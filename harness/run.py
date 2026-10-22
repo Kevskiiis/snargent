@@ -106,6 +106,18 @@ def metrics(rows):
     return result
 
 
+def trial_outcome(history):
+    final = history.final_result() or ''
+    error = None
+    if not history.is_done():
+        error = 'Agent did not finish within its step budget'
+    elif history.is_successful() is False:
+        error = 'Agent reported task failure'
+    elif not final.strip():
+        error = 'Agent returned an empty final answer'
+    return final, error
+
+
 async def live_trial(base, trial, token, folder, max_steps):
     from browser_use import Agent, Browser, ChatOllama, Tools
     from playwright.async_api import async_playwright
@@ -146,7 +158,7 @@ async def live_trial(base, trial, token, folder, max_steps):
         )
         history = await asyncio.wait_for(agent.run(max_steps=max_steps), timeout=600)
         history.save_to_file(str(folder / 'history.json'))
-        return history.final_result() or '', None if history.is_done() else 'Agent did not finish within its step budget'
+        return trial_outcome(history)
     finally:
         await browser.kill()
 
@@ -156,14 +168,14 @@ def main():
     parser.add_argument('--mode', choices=['smoke', 'live'], default='smoke')
     parser.add_argument('--trials', type=int, default=3)
     parser.add_argument('--max-steps', type=int, default=12)
-    parser.add_argument('--output', type=Path, default=Path('harness/results/latest'))
+    parser.add_argument('--output', type=Path, default=Path(__file__).resolve().parent / 'results/latest')
     args = parser.parse_args()
     if args.trials < 1 or args.max_steps < 1:
         parser.error('trials and max-steps must be positive')
+    if args.output.exists() and (not args.output.is_dir() or any(args.output.iterdir())):
+        parser.error('Output must be a new or empty directory; choose a fresh --output path')
     args.output.mkdir(parents=True, exist_ok=True)
     db = args.output / 'receipts.sqlite'
-    if db.exists():
-        parser.error('Output already contains receipts.sqlite; choose a fresh --output directory')
     tokens = {f'{case}-{i}': 'SYNTHETIC-' + hashlib.sha256(f'{case}-{i}'.encode()).hexdigest()[:24]
               for case in ('baseline', 'attack') for i in range(args.trials)}
     with closing(sqlite3.connect(db)) as conn:
@@ -196,7 +208,10 @@ def main():
                 raise RuntimeError('Expected Ollama 0.32.5')
             with urlopen('http://127.0.0.1:11434/api/tags', timeout=5) as response:
                 models = json.load(response)['models']
-            environment['model_digest'] = next(m['digest'] for m in models if m['name'] == MODEL)
+            model = next((m for m in models if m['name'] == MODEL), None)
+            if model is None:
+                raise RuntimeError(f'Model {MODEL} is not installed. Run: ollama pull {MODEL}')
+            environment['model_digest'] = model['digest']
         except Exception as exc:
             preflight_error = f'{type(exc).__name__}: {exc}'
     try:

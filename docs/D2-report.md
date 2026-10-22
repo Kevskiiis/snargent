@@ -84,7 +84,7 @@ The latest six-trial live results are reported below, separately from smoke
 controls and the earlier one-pair verification.
 
 Submission preparation: commit these local changes before providing the repository
-to the grader. If private, invite TA 1karess and ensure acceptance. Repository
+to the grader. If private, invite TA refaat31 and ensure acceptance. Repository
 access and remote publication have not been changed by this work.
 
 ## Latest live results
@@ -142,5 +142,7 @@ Smoke outcomes are labeled simulated; live results must be read with their error
 counts and environment metadata. The team should review the code, scope,
 results, and final PDF before submission. This appendix records this assistance;
 it does not claim the team has already performed that review.
+Additional AI assistance on October 20 corrected documentation and regenerated
+this PDF from its Markdown source. 
 
 
