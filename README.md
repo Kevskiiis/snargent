@@ -175,3 +175,18 @@ restart `make dev`. Confirm the backend responds with
 
 Stop `make dev` with `Ctrl+C`, then start it again. Vite reads environment
 variables only at startup.
+
+## D2 experiment
+
+The attack-surface report, pinned Python harness, and exact reproduction commands
+are in [harness/README.md](harness/README.md). The submission PDF is
+[output/pdf/D2-Snargent.pdf](output/pdf/D2-Snargent.pdf).
+
+Quick local plumbing check (no model or additional packages required):
+
+```sh
+python harness/run.py --mode smoke --trials 3 --output harness/results/smoke
+```
+
+Smoke results are simulated controls. Use the documented live command to test
+the Browser Use/Ollama victim.
