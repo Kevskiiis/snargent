@@ -1,0 +1,2 @@
+# PDF byte offsets must survive Windows Git newline conversion unchanged.
+*.pdf binary
