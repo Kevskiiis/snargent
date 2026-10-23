@@ -3,6 +3,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { BrowserRouter, Link as RouterLink, Route, Routes } from 'react-router-dom'
 import { PageViewLogger } from './components/PageViewLogger'
 import { ArticlePage } from './pages/ArticlePage'
+import { PAYLOADS } from './pages/articlePayloads'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 import './index.css'
@@ -22,6 +23,11 @@ const theme = createTheme({
 })
 
 function App() {
+  const benchKey = new URLSearchParams(window.location.search).get('bench')
+  const payloadKey = benchKey && benchKey in PAYLOADS
+    ? (benchKey as keyof typeof PAYLOADS)
+    : null
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -50,7 +56,7 @@ function App() {
         </AppBar>
         <Container component="main" maxWidth="md" className="page-content">
           <Routes>
-            <Route path="/" element={<ArticlePage />} />
+            <Route path="/" element={<ArticlePage payloadKey={payloadKey} />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route

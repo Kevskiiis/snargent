@@ -9,8 +9,9 @@ export function buildServer() {
 
 	server.register(cors, {
 		origin: (origin, callback) => {
-			callback(null, origin === 'http://localhost:5173' ? origin : false)
+			callback(null, origin === settings.corsOrigin ? origin : false)
 		},
+		allowedHeaders: ['Content-Type', 'X-Bench-Trial'],
 		methods: ['GET', 'POST'],
 	})
 	server.register(rootRoutes)

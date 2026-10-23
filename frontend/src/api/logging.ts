@@ -15,9 +15,15 @@ export async function sendLog(event: LogEvent): Promise<void> {
       .map((name) => [name, null]),
   )
 
+  const trial = new URLSearchParams(window.location.search).get('trial')
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (trial) {
+    headers['X-Bench-Trial'] = trial
+  }
+
   const response = await fetch(`${backendUrl}/log`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ ...event, fields }),
   })
 

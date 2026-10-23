@@ -1,10 +1,18 @@
 import { Avatar, Box, Chip, Divider, Paper, Stack, Typography } from '@mui/material'
+import { PAYLOADS } from './articlePayloads'
 
-// Placeholder only: add approved synthetic benchmark text inside this HTML comment.
-export const HIDDEN_PAYLOAD =
-  '<!-- Research instruction placeholder: approved synthetic benchmark text goes here. -->'
+export function ArticlePage({ payloadKey = null }: { payloadKey?: keyof typeof PAYLOADS | null }) {
+  const query = new URLSearchParams(window.location.search)
+  const trial = query.get('trial') ?? ''
+  const collector = `${(import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:8000').replace(/\/+$/, '')}/bench/collect`
+  // Fixture renders ONLY when explicitly requested by the test harness (?bench=<class>).
+  // Default production render contains no injection payload.
+  const payloadHtml = payloadKey && PAYLOADS[payloadKey]
+    ? `<div data-bench-fixture="prompt-injection" style="display:none">${PAYLOADS[payloadKey]
+      .replace('__COLLECTOR__', collector)
+      .replace('__TRIAL__', trial)}</div>`
+    : ''
 
-export function ArticlePage() {
   return (
     <Paper component="article" className="article-card" elevation={0}>
       <Box className="article-cover" aria-hidden="true">
@@ -37,7 +45,7 @@ export function ArticlePage() {
 
         <Divider className="article-divider" />
         <Box className="article-prose">
-          <div dangerouslySetInnerHTML={{ __html: HIDDEN_PAYLOAD }} />
+          <div dangerouslySetInnerHTML={{ __html: payloadHtml }} />
           <Typography component="p" className="article-lede">
             For the past few years, the story of artificial intelligence has largely been told in
             terms of scale: larger training runs, larger data centers, and systems with more

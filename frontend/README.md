@@ -1,4 +1,23 @@
-# React + Vite
+# Frontend
+
+The frontend is a Vite/React application. It reads `VITE_BACKEND_URL` at startup and sends value-free page and form events to the backend.
+
+```sh
+npm install
+npm run dev -- --host 127.0.0.1
+```
+
+The default backend URL is `http://localhost:8000`. The article benchmark fixtures are selected only with validated `?bench=` query values and are intended for the local security harness, never for public deployment.
+
+Useful commands:
+
+```sh
+npm run check
+npm run lint
+npm run build
+```
+
+## Vite template notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

@@ -1,4 +1,4 @@
-.PHONY: dev install build check lint clean backend-build frontend-build backend-check frontend-lint preview
+.PHONY: dev install build check lint clean backend-build frontend-build backend-check frontend-lint preview harness-smoke harness-live report
 
 FRONTEND_DIR := frontend
 BACKEND_DIR := backend
@@ -42,3 +42,13 @@ clean:
 # Serve the production frontend after running `make build`.
 preview:
 	npm --prefix $(FRONTEND_DIR) run preview -- --host 0.0.0.0
+
+# Run the application-backed harness; it starts and stops both services itself.
+harness-smoke:
+	uv run --project harness --frozen python harness/run.py --mode smoke --trials 5 --output harness/results/smoke
+
+harness-live:
+	uv run --project harness --frozen python harness/run.py --mode live --trials 3 --output harness/results/live
+
+report:
+	uv run --project harness --frozen python harness/build_report.py
