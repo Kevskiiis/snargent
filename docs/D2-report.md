@@ -34,9 +34,26 @@ Smoke mode is a scripted real-stack control. It verifies that the actual page re
 
 Live mode uses Browser Use 0.13.10, Playwright 1.58.0, Ollama 0.40.2, and `orca-mini:3b`. Inference uses temperature 0, seed 42, context size 8192, and 20 GPU layers. Each trial uses a fresh browser and saved trace directory. The actual model digest is recorded in `summary.json`.
 
-## Reproduction
+## Running the harness (prerequisites, setup, and commands)
 
-Install Node.js 22, Python 3.12, `uv`, and Ollama 0.40.2 for live mode:
+### Prerequisites
+
+- Node.js 22 with npm
+- Python 3.12
+- `uv` (Python package manager)
+- Playwright Chromium (installed during setup below)
+- Ollama 0.40.2 with `orca-mini:3b` (live mode only)
+
+### Step 1: Verify required tools
+
+```sh
+node --version
+npm --version
+python3 --version
+uv --version
+```
+
+### Step 2: Install project dependencies
 
 ```sh
 make install
@@ -46,23 +63,62 @@ uv run --project harness --frozen python -m playwright install chromium
 uv run --project harness --frozen python -m playwright install-deps chromium
 ```
 
-Run application-backed controls:
+### Step 3: Run baseline harness checks (smoke path)
 
 ```sh
 uv run --project harness --frozen python -m unittest discover -s harness -v
 uv run --project harness --frozen python harness/run.py \
-	--mode smoke --trials 5 --output harness/results/d2-smoke-current
+  --mode smoke --trials 5 --output harness/results/d2-smoke-current
 ```
 
-Run live trials:
+Smoke output directory:
+
+```text
+harness/results/d2-smoke-current/
+```
+
+### Step 4: Run live harness checks (browser agent + model)
+
+In one terminal, start and prepare Ollama:
 
 ```sh
 ollama serve
 ollama pull orca-mini:3b
+```
+
+In a second terminal, run live mode:
+
+```sh
+uv run --project harness --frozen python harness/run.py \
+  --mode live --trials 3 --max-steps 12 --output harness/results/d2-live-current
+```
+
+Live output directory:
+
+```text
+harness/results/d2-live-current/
+```
+
+### Step 5: Optional direct commands for custom output folders
+
+```sh
+uv run --project harness --frozen python harness/run.py \
+  --mode smoke --trials 5 --output harness/results/d2-smoke-current
+
+uv run --project harness --frozen python harness/run.py \
+  --mode live --trials 3 --max-steps 12 --output harness/results/d2-live-current
+```
+
+Quick aliases are also available:
+
+```sh
+make harness-smoke
 make harness-live
 ```
 
-Use a fresh output directory for each invocation. The harness reports missing dependencies, service failures, browser failures, and model timeouts as errors. Those errors are excluded from completed-trial rates; a no-completion `success_rate` is reported numerically as `0.0` alongside the error count.
+These aliases write to fixed output folders (`harness/results/smoke` and `harness/results/live`) and will fail if those folders already contain prior run artifacts.
+
+Always use a fresh output directory. The harness reports missing dependencies, service failures, browser failures, and model timeouts as errors. Those errors are excluded from completed-trial rates; a no-completion `success_rate` is reported numerically as `0.0` alongside the error count.
 
 ## Evidence and scoring
 
@@ -123,4 +179,4 @@ Current smoke evidence: `harness/results/smoke/summary.json`.
 
 ## AI use appendix
 
-AI assistance was used to inspect the existing repository, identify that the original harness bypassed the application, design the local evidence boundary, implement the application-backed harness, update setup documentation, and regenerate this report. All test data and canaries are synthetic. The team should review the implementation, evidence, report totals, and local-only safety assumptions before submission.
+AI assistance was used to inspect the existing repository, identify that the original harness bypassed the application, design the local evidence boundary, update setup documentation, and regenerate this report. All test data and canaries are synthetic.
