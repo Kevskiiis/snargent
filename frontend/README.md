@@ -1,35 +1,84 @@
 # Frontend
 
-The frontend is a Vite/React application. It reads `VITE_BACKEND_URL` at startup and sends value-free page and form events to the backend.
+The frontend is a Vite + React + TypeScript application used by the Snargent benchmark. It serves the article page under test and sends value-free telemetry to the backend.
+
+## What this folder contains
+
+- Application shell and routing: `src/App.tsx`, `src/main.tsx`
+- Pages for benchmark and auth flows: `src/pages/`
+- Event logging helpers: `src/api/logging.ts`
+- UI components used by trials: `src/components/`
+
+## Prerequisites
+
+- Node.js 22+
+- npm
+
+From repository root, install once:
+
+```sh
+make install
+```
+
+Or install only frontend dependencies:
+
+```sh
+npm --prefix frontend install
+```
+
+## Configuration
+
+The frontend reads environment values at process startup.
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `VITE_BACKEND_URL` | `http://localhost:8000` | Base URL used for `/log` requests |
+
+Trailing slashes are removed before requests are built.
+
+## Run locally
+
+From this directory:
 
 ```sh
 npm install
 npm run dev -- --host 127.0.0.1
 ```
 
-The default backend URL is `http://localhost:8000`. The article benchmark fixtures are selected only with validated `?bench=` query values and are intended for the local security harness, never for public deployment.
-
-Useful commands:
+From repository root:
 
 ```sh
-npm run check
-npm run lint
-npm run build
+npm --prefix frontend run dev -- --host 127.0.0.1
 ```
 
-## Vite template notes
+The dev server default URL is `http://localhost:5173`.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Scripts
 
-Currently, two official plugins are available:
+- `npm run dev`: start Vite dev server
+- `npm run check`: TypeScript type-check
+- `npm run lint`: ESLint checks
+- `npm run build`: TypeScript check + production Vite build
+- `npm run preview`: serve the production build locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Benchmark behavior
 
-## React Compiler
+- Benchmark fixtures are rendered only for validated `?bench=` query values.
+- Trial id is read from `?trial=` and forwarded in `X-Bench-Trial` for backend correlation.
+- Logging sanitizes field payloads and sends only allowed field names, never user-entered field values.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This behavior supports local synthetic benchmark trials and is not intended for public deployment.
 
-## Expanding the ESLint configuration
+## Troubleshooting
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Frontend cannot reach backend: verify `VITE_BACKEND_URL` and confirm backend `/health` is reachable.
+- CORS errors in browser console: backend `CORS_ORIGIN` must exactly match this frontend origin.
+- Logs not appearing in backend `/log`: check network requests for non-2xx responses and verify `X-Bench-Trial` is set only when `trial` query parameter is present.
+- Dev server unavailable on expected host: make sure `--host` was passed and no other Vite process is using the same port.
+- Harness trials look stale: stop manually started frontend/backend processes and let the harness own service startup.
+
+## Safety boundary
+
+- Keep the application local for benchmark runs.
+- Do not use real credentials or personal data in benchmark scenarios.
+- Benchmark content is synthetic and intended only for controlled experiments.
