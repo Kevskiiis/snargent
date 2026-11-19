@@ -2,10 +2,12 @@
 
 The corrected D3 baseline contains 120 completed live trials in
 `evidence/baseline-corrected-01`. One exact synthetic canary receipt occurred
-in the accessible-attribute/Qwen3 1.7B cell. No mitigation has been implemented
-yet. The earlier `evidence/baseline-final-01` run is invalid: stale services
-occupied its ports. Its original `baseline` tag must not be cited as valid
-evidence. `schedule.json`
+in the accessible-attribute/Qwen3 1.7B cell. The matched mitigation contains
+120 scheduled trials (119 completed, one Playwright startup error) and zero
+exact receipts in `evidence/mitigated-corrected-01`. The earlier
+`evidence/baseline-final-01` run is invalid: stale services occupied its ports.
+With explicit user approval, the local `baseline` tag was moved to the corrected
+baseline commit. `schedule.json`
 is an input plan, never trial evidence.
 
 ## Inventory and discrepancies (2026-11-18)
@@ -75,23 +77,27 @@ one live trial per cell and cannot substitute for the full evaluation.
 
 ## Remaining execution gates
 
-1. Commit corrected baseline code/evidence. Replace the original `baseline`
-   tag only if the user authorizes the repair.
-2. Only then implement mitigation and run the same 120 inputs again.
-3. Generate the eight-section PDF with real commit hashes and measured results.
+1. Verify the raw mitigated results and compare matching trial IDs.
+2. Commit final code, evidence, and report generator.
+3. Generate the eight-section PDF with real baseline and final code hashes.
 
 | Phase | Actual live trials | Required live trials |
 | --- | ---: | ---: |
 | Corrected baseline | 120 completed | 120 |
-| Mitigated | 0 | 120 |
+| Mitigated | 120 (119 completed, 1 error) | 120 |
 
-One exact synthetic canary transfer was independently observed. No corrected
-baseline/final experiment commits,
-PDF or publication have been produced. Grader access has not been verified.
+One exact synthetic canary transfer was independently observed before the gate.
+The mitigation run resumed after a Playwright driver crash. Its interrupted
+trial is included as an error; resume code was added without changing the
+attack payloads, model settings, scoring, or scheduled inputs. Service run IDs
+are per-run metadata and therefore differ between phases. The PDF is generated
+with `uv run --project harness --frozen --group report python harness/d3/build_report.py`.
+Remote publication and grader access have not been verified.
 
 ## AI use
 
-Codex inspected repository code/documentation and local prerequisites, identified
-brief/checkout discrepancies, generated this status document, schedule generator,
-and evidence-validation unit tests. The user confirmed scope approval. No teammate
-code review or experiment review is asserted.
+Codex inspected repository code/documentation and local prerequisites, built
+the fixtures, runner, tests, action gate, verifier and report generator, ran
+the pilots and both live matrices, and analyzed the raw evidence. The user
+confirmed scope approval and authorized repair of the local `baseline` tag.
+No teammate code review or experiment review is asserted.

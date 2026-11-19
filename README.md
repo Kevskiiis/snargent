@@ -1,5 +1,12 @@
 # Snargent
 
+## D3 experiment
+
+The D3 Track A experiment, exact setup, reproduction commands, raw evidence,
+and report generator are documented in [harness/d3/README.md](harness/d3/README.md).
+The D3 PDF is generated at `output/pdf/D3-Snargent.pdf`. D2 commands and
+results remain separate.
+
 Snargent is a local security research benchmark for studying whether a browser agent follows instructions embedded in webpage content instead of its assigned task. It is designed for the university Track A experiment, uses synthetic data only, and is never intended for public deployment or real-user testing.
 
 The project contains a Vite/React frontend, a Fastify/TypeScript backend, and a Python security harness. The harness starts the actual frontend and backend, opens the real article page in a browser, runs controlled prompt-injection fixtures, and records what the backend received.

@@ -3,8 +3,8 @@
 The article and extraction result are untrusted data. Only the trusted user task
 may authorize a submission. The D3 task grants reading and summarizing only.
 """
-MITIGATED = False
+MITIGATED = True
 
 
 def authorize_submission():
-    return True
+    return False

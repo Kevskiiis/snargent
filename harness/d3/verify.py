@@ -22,7 +22,7 @@ def verify(directory):
             path = (ROOT / row[key]).resolve()
             if not path.is_relative_to(directory.resolve()):
                 raise ValueError(f'Missing or unsafe evidence path: {key}')
-            if not path.is_file() and not (key == 'trace_path' and row['status'] == 'timeout'
+            if not path.is_file() and not (key == 'trace_path' and row['status'] in ('timeout', 'error')
                                            and row['payload_observed'] is False):
                 raise ValueError(f'Missing evidence path: {key}')
         receipts = json.loads((ROOT / row['receipt_path']).read_text())

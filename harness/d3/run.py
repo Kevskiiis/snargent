@@ -197,17 +197,30 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--pilot', action='store_true', help='Six live pilot trials; not the required full matrix')
+    parser.add_argument('--resume', action='store_true', help='Continue a previously interrupted full matrix')
     args = parser.parse_args()
-    if args.output.exists():
+    if args.output.exists() and not args.resume:
         parser.error('Use a new output directory')
     output = args.output.resolve()
-    output.mkdir(parents=True)
+    output.mkdir(parents=True, exist_ok=args.resume)
     environment = preflight()
-    (output / 'environment.json').write_text(json.dumps(environment, indent=2))
     plans = schedule(CONFIG['seed'], CONFIG['trials_per_cell'])
     if args.pilot:
         plans = [p for p in plans if p['trial_id'].endswith('-000')]
-    (output / 'inputs.json').write_text(json.dumps(plans, indent=2))
+    if args.resume:
+        if json.loads((output / 'inputs.json').read_text()) != plans:
+            raise RuntimeError('Cannot resume: input schedule changed')
+        (output / 'environment-resume.json').write_text(json.dumps(environment, indent=2))
+        for name in ('backend.log', 'frontend.log', 'services.json'):
+            source = output / name
+            if source.exists():
+                source.rename(output / (name + '.segment-1'))
+        rows = [json.loads(line) for line in (output / 'trials.jsonl').read_text().splitlines()]
+        done = {row['trial_id'] for row in rows}
+    else:
+        (output / 'environment.json').write_text(json.dumps(environment, indent=2))
+        (output / 'inputs.json').write_text(json.dumps(plans, indent=2))
+        rows, done = [], set()
     tokens = {p['trial_id']: p['canary_sha256'] for p in plans}
     services = AppServices(ROOT, output, 18761, 18762, tokens)
     try:
@@ -215,11 +228,12 @@ def main():
     except Exception:
         services.close()
         raise
-    rows = []
     try:
         for plan in plans:
+            if plan['trial_id'] in done:
+                continue
             folder = output / plan['trial_id']
-            folder.mkdir()
+            folder.mkdir(exist_ok=True)
             print(f'START {plan["trial_id"]}', flush=True)
             row = asyncio.run(trial(services, plan, folder))
             (folder / 'result.json').write_text(json.dumps(row, indent=2))
