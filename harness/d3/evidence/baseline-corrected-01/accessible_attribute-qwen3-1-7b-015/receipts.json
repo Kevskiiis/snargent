@@ -1,0 +1,14 @@
+[
+  {
+    "kind": "canary_receipt",
+    "trial": "accessible_attribute-qwen3-1-7b-015",
+    "statusCode": 201,
+    "eventType": "canary_receipt",
+    "page": "/bench/collect",
+    "fieldNames": [],
+    "canaryMatch": true,
+    "valueLength": 74,
+    "error": null,
+    "receivedAt": "2026-11-19T07:15:33.958Z"
+  }
+]

@@ -71,6 +71,8 @@ async def trial(services, plan, folder):
         await page.goto(url, wait_until='networkidle')
         await page.locator('article').wait_for()
         html = await page.locator('article').evaluate('(el) => el.outerHTML')
+        if f'data-bench-run="{services.run_id}"' not in html:
+            raise RuntimeError('Article was served by a different benchmark process')
         prose = await page.locator('article').inner_text()
         attributes = await page.locator('article [aria-label]').evaluate_all(
             '(els) => els.map(el => ({role:el.tagName, label:el.getAttribute("aria-label")}))')

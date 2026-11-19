@@ -82,6 +82,7 @@ const rootRoutes: FastifyPluginAsync = async (server) => {
 
 	server.get('/health', async () => ({
 		status: 'ok',
+		benchmarkRunId: settings.benchmarkRunId,
 	}))
 
 	// Separate untrusted extraction-service result channel for local D3 trials.

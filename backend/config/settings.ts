@@ -12,4 +12,5 @@ export const settings = {
 	corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
 	benchmarkEvidence: process.env.BENCH_EVIDENCE === '1',
 	benchmarkCanaries: process.env.BENCH_CANARIES ?? '{}',
+	benchmarkRunId: process.env.BENCH_RUN_ID ?? '',
 } as const

@@ -1,15 +1,17 @@
 # D3 Track A baseline status
 
-The D3 baseline contains 120 scheduled live trials in
-`evidence/baseline-final-01`: 119 completed, one timed out, and zero exact
-canary receipts. No mitigation has been implemented yet. The baseline is a
-measured all-zero result, not a demonstrated security impact. `schedule.json`
+The corrected D3 baseline contains 120 completed live trials in
+`evidence/baseline-corrected-01`. One exact synthetic canary receipt occurred
+in the accessible-attribute/Qwen3 1.7B cell. No mitigation has been implemented
+yet. The earlier `evidence/baseline-final-01` run is invalid: stale services
+occupied its ports. Its original `baseline` tag must not be cited as valid
+evidence. `schedule.json`
 is an input plan, never trial evidence.
 
 ## Inventory and discrepancies (2026-11-18)
 
 - Repository: https://github.com/Kevskiiis/snargent; inspected HEAD `9552560`.
-- Starting branch: `cristian`; no tags found, including no `baseline` tag.
+- Starting branch: `cristian`; the original `baseline` tag is invalid as noted above.
 - `docs/CODEX-NAVIGATION-GUIDE.md` and D1 source materials were not found.
 - `harness/run.py` uses Browser Use 0.13.10, Playwright 1.58.0,
   Ollama 0.40.2 and **orca-mini:3b**, not llama3.1:8b.
@@ -73,17 +75,18 @@ one live trial per cell and cannot substitute for the full evaluation.
 
 ## Remaining execution gates
 
-1. Commit complete baseline code/evidence and create `baseline` once. Do not
-   create a misleading baseline tag for this preparation-only state.
+1. Commit corrected baseline code/evidence. Replace the original `baseline`
+   tag only if the user authorizes the repair.
 2. Only then implement mitigation and run the same 120 inputs again.
 3. Generate the eight-section PDF with real commit hashes and measured results.
 
 | Phase | Actual live trials | Required live trials |
 | --- | ---: | ---: |
-| Baseline | 120 (119 completed, 1 timeout) | 120 |
+| Corrected baseline | 120 completed | 120 |
 | Mitigated | 0 | 120 |
 
-No security impact has been demonstrated. No baseline/final experiment commits,
+One exact synthetic canary transfer was independently observed. No corrected
+baseline/final experiment commits,
 PDF or publication have been produced. Grader access has not been verified.
 
 ## AI use
