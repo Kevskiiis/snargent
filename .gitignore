@@ -39,4 +39,5 @@ __pycache__/
 *.py[cod]
 .venv/
 harness/results/
+!harness/d3/evidence/**/*.log
 /tmp/

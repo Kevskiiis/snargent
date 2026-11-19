@@ -3780,10 +3780,22 @@ dependencies = [
     { name = "playwright" },
 ]
 
+[package.dev-dependencies]
+report = [
+    { name = "pypdf" },
+    { name = "reportlab" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "browser-use", specifier = "==0.13.10" },
     { name = "playwright", specifier = "==1.58.0" },
+]
+
+[package.metadata.requires-dev]
+report = [
+    { name = "pypdf", specifier = "==6.16.2" },
+    { name = "reportlab", specifier = "==4.4.9" },
 ]
 
 [[package]]

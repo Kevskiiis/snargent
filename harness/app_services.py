@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import socket
 import subprocess
 import time
@@ -43,7 +44,7 @@ class AppServices:
             "BENCH_CANARIES": json.dumps(self.canaries),
         })
         self.backend = subprocess.Popen(
-            ["npm", "--prefix", "backend", "run", "dev"],
+            [shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm", "--prefix", "backend", "run", "dev"],
             cwd=self.root,
             env=environment,
             stdout=backend_log,
@@ -54,7 +55,7 @@ class AppServices:
         frontend_environment = environment.copy()
         frontend_environment["VITE_BACKEND_URL"] = self.backend_url
         self.frontend = subprocess.Popen(
-            ["npm", "--prefix", "frontend", "run", "dev", "--", "--host", "127.0.0.1", "--port", str(self.frontend_port)],
+            [shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm", "--prefix", "frontend", "run", "dev", "--", "--host", "127.0.0.1", "--port", str(self.frontend_port)],
             cwd=self.root,
             env=frontend_environment,
             stdout=frontend_log,
@@ -87,6 +88,11 @@ class AppServices:
     def close(self) -> None:
         for process in (self.frontend, self.backend):
             if process is None or process.poll() is not None:
+                continue
+            if os.name == "nt":
+                subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                               capture_output=True, check=False)
+                process.wait(timeout=10)
                 continue
             try:
                 os.killpg(process.pid, signal.SIGTERM)

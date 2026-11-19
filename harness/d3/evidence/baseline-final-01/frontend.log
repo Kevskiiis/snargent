@@ -1,0 +1,11 @@
+
+> frontend@0.0.0 dev
+> vite --host 127.0.0.1 --port 18762
+
+error when starting dev server:
+Error: Port 18762 is already in use
+    at httpServerStart (file:///C:/Users/cristian/OneDrive/Desktop/CS428/snargent/frontend/node_modules/vite/dist/node/chunks/node.js:14661:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async startServer (file:///C:/Users/cristian/OneDrive/Desktop/CS428/snargent/frontend/node_modules/vite/dist/node/chunks/node.js:25127:30)
+    at async Object.listen (file:///C:/Users/cristian/OneDrive/Desktop/CS428/snargent/frontend/node_modules/vite/dist/node/chunks/node.js:24933:4)
+    at async CAC.<anonymous> (file:///C:/Users/cristian/OneDrive/Desktop/CS428/snargent/frontend/node_modules/vite/dist/node/cli.js:735:3)
