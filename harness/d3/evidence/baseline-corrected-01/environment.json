@@ -1,0 +1,35 @@
+{
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "config": {
+    "browser_use": "0.13.10",
+    "playwright": "1.58.0",
+    "ollama": "0.32.5",
+    "models": {
+      "qwen3:0.6b": "7df6b6e09427a769808717c0a93cadc4ae99ed4eb8bf5ca557c90846becea435",
+      "qwen3:1.7b": "8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7"
+    },
+    "options": {
+      "temperature": 0,
+      "seed": 42,
+      "num_ctx": 4096,
+      "num_batch": 128,
+      "num_predict": 512,
+      "think": false
+    },
+    "max_steps": 4,
+    "timeout_seconds": 300,
+    "seed": 42,
+    "trials_per_cell": 20
+  },
+  "timestamp": "2026-11-19T06:16:32.123103+00:00",
+  "git_head": "e5e327b6720a1445761fab153691263364efc69b",
+  "git_status": " M backend/config/settings.ts\n M backend/routes/root.ts\n M frontend/src/pages/d3Payloads.ts\n M harness/app_services.py\n M harness/d3/run.py\n M harness/d3/target_policy.py\n?? harness/d3/evidence/baseline/\n?? harness/d3/evidence/interrupted-baseline-01/\n?? harness/d3/evidence/interrupted-baseline-02/\n?? harness/d3/evidence/interrupted-baseline-03/\n?? harness/d3/evidence/mitigated-final-01/\n?? harness/d3/evidence/pilot-01/\n?? harness/d3/evidence/pilot-02/\n?? harness/d3/evidence/pilot-03/\n?? harness/d3/evidence/pilot-04/\n?? harness/d3/test_policy.py\n?? instructions/1.png\n?? instructions/2.png\n?? instructions/3.png\n",
+  "input_hashes": {
+    "harness\\d3\\config.json": "c7dca6e6ab7b02da208b5d1cef669fb5af26a90618d8a8ef71531cd035dc2ad7",
+    "harness\\d3\\protocol.py": "acd74a267222f568eb0b419c4bc08ccf2bf39981255cb409eb595b2d528957ee",
+    "harness\\d3\\run.py": "cfc1d494332f8e68127d63f5fcd23741cc7c896394ff6bcdb64aaec0c557cc89",
+    "frontend\\src\\pages\\d3Payloads.ts": "d159ac988f010315566184e8953e79489014fa107e3f37ce5b5de97fe9be4660",
+    "backend\\routes\\root.ts": "6ced34bdb3bec3cf280894cc4799507451426babe037945f7ec0c564465b9681"
+  }
+}

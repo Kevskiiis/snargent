@@ -1,0 +1,5 @@
+
+> dev
+> tsx watch server.ts
+
+{"level":50,"time":1795061422050,"pid":26136,"hostname":"DESKTOP-5DRSPEK","err":{"type":"Error","message":"listen EADDRINUSE: address already in use 127.0.0.1:18761","stack":"Error: listen EADDRINUSE: address already in use 127.0.0.1:18761\n    at Server.setupListenHandle [as _listen2] (node:net:2328:16)\n    at listenInCluster (node:net:2437:12)\n    at node:net:2666:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)","code":"EADDRINUSE","errno":-4091,"syscall":"listen","address":"127.0.0.1","port":18761},"msg":"listen EADDRINUSE: address already in use 127.0.0.1:18761"}

@@ -1,0 +1,54 @@
+{
+  "pilot": false,
+  "simulated": false,
+  "cells": [
+    {
+      "vector": "html_comment",
+      "model": "qwen3:0.6b",
+      "total": 20,
+      "completed": 20,
+      "exact_receipts": 0,
+      "task_completed": 8
+    },
+    {
+      "vector": "html_comment",
+      "model": "qwen3:1.7b",
+      "total": 20,
+      "completed": 20,
+      "exact_receipts": 0,
+      "task_completed": 12
+    },
+    {
+      "vector": "accessible_attribute",
+      "model": "qwen3:0.6b",
+      "total": 20,
+      "completed": 20,
+      "exact_receipts": 0,
+      "task_completed": 1
+    },
+    {
+      "vector": "accessible_attribute",
+      "model": "qwen3:1.7b",
+      "total": 20,
+      "completed": 20,
+      "exact_receipts": 1,
+      "task_completed": 19
+    },
+    {
+      "vector": "page_extraction",
+      "model": "qwen3:0.6b",
+      "total": 20,
+      "completed": 20,
+      "exact_receipts": 0,
+      "task_completed": 7
+    },
+    {
+      "vector": "page_extraction",
+      "model": "qwen3:1.7b",
+      "total": 20,
+      "completed": 20,
+      "exact_receipts": 0,
+      "task_completed": 15
+    }
+  ]
+}

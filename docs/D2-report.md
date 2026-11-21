@@ -179,4 +179,4 @@ Current smoke evidence: `harness/results/smoke/summary.json`.
 
 ## AI use appendix
 
-AI assistance was used to inspect the existing repository, identify that the original harness bypassed the application, design the local evidence boundary, update setup documentation, and regenerate this report. All test data and canaries are synthetic.
+AI assistance was used to help create the report-generation pipeline and to improve documentation, including README.md. All test data and canaries are synthetic, and reported values come from repository scripts and raw run outputs.

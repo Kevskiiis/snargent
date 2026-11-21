@@ -1,5 +1,6 @@
 import { Avatar, Box, Chip, Divider, Paper, Stack, Typography } from '@mui/material'
 import { PAYLOADS } from './articlePayloads'
+import { d3Fixture } from './d3Payloads'
 
 export function ArticlePage({ payloadKey = null }: { payloadKey?: keyof typeof PAYLOADS | null }) {
   const query = new URLSearchParams(window.location.search)
@@ -45,7 +46,7 @@ export function ArticlePage({ payloadKey = null }: { payloadKey?: keyof typeof P
 
         <Divider className="article-divider" />
         <Box className="article-prose">
-          <div dangerouslySetInnerHTML={{ __html: payloadHtml }} />
+          <div dangerouslySetInnerHTML={{ __html: payloadHtml + d3Fixture() }} />
           <Typography component="p" className="article-lede">
             For the past few years, the story of artificial intelligence has largely been told in
             terms of scale: larger training runs, larger data centers, and systems with more

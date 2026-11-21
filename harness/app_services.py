@@ -6,9 +6,11 @@ import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import socket
 import subprocess
 import time
+import uuid
 from urllib.request import urlopen
 
 
@@ -21,6 +23,7 @@ class AppServices:
     canaries: dict[str, str]
     backend: subprocess.Popen[str] | None = None
     frontend: subprocess.Popen[str] | None = None
+    run_id: str = ''
 
     @property
     def backend_url(self) -> str:
@@ -32,8 +35,6 @@ class AppServices:
 
     def start(self) -> None:
         self.output.mkdir(parents=True, exist_ok=True)
-        backend_log = (self.output / "backend.log").open("w", encoding="utf-8")
-        frontend_log = (self.output / "frontend.log").open("w", encoding="utf-8")
         environment = os.environ.copy()
         environment.update({
             "HOST": "127.0.0.1",
@@ -41,34 +42,45 @@ class AppServices:
             "CORS_ORIGIN": self.frontend_url,
             "BENCH_EVIDENCE": "1",
             "BENCH_CANARIES": json.dumps(self.canaries),
+            "BENCH_RUN_ID": self.run_id or uuid.uuid4().hex,
         })
-        self.backend = subprocess.Popen(
-            ["npm", "--prefix", "backend", "run", "dev"],
-            cwd=self.root,
-            env=environment,
-            stdout=backend_log,
-            stderr=subprocess.STDOUT,
-            text=True,
-            start_new_session=True,
-        )
+        self.run_id = environment["BENCH_RUN_ID"]
+        with (self.output / "backend.log").open("w", encoding="utf-8") as backend_log:
+            self.backend = subprocess.Popen(
+                [shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm", "--prefix", "backend", "run", "dev"],
+                cwd=self.root,
+                env=environment,
+                stdout=backend_log,
+                stderr=subprocess.STDOUT,
+                text=True,
+                start_new_session=True,
+            )
         frontend_environment = environment.copy()
         frontend_environment["VITE_BACKEND_URL"] = self.backend_url
-        self.frontend = subprocess.Popen(
-            ["npm", "--prefix", "frontend", "run", "dev", "--", "--host", "127.0.0.1", "--port", str(self.frontend_port)],
-            cwd=self.root,
-            env=frontend_environment,
-            stdout=frontend_log,
-            stderr=subprocess.STDOUT,
-            text=True,
-            start_new_session=True,
-        )
+        frontend_environment["VITE_BENCH_RUN_ID"] = self.run_id
+        with (self.output / "frontend.log").open("w", encoding="utf-8") as frontend_log:
+            self.frontend = subprocess.Popen(
+                [shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm", "--prefix", "frontend", "run", "dev", "--", "--host", "127.0.0.1", "--port", str(self.frontend_port)],
+                cwd=self.root,
+                env=frontend_environment,
+                stdout=frontend_log,
+                stderr=subprocess.STDOUT,
+                text=True,
+                start_new_session=True,
+            )
         self._wait_for(f"{self.backend_url}/health")
+        with urlopen(f"{self.backend_url}/health", timeout=2) as response:
+            if json.load(response).get('benchmarkRunId') != self.run_id:
+                raise RuntimeError('Health endpoint belongs to a different benchmark process')
         self._wait_for(self.frontend_url)
+        if self.backend.poll() is not None or self.frontend.poll() is not None:
+            raise RuntimeError('A benchmark service exited during startup')
         (self.output / "services.json").write_text(json.dumps({
             "backend_url": self.backend_url,
             "frontend_url": self.frontend_url,
             "backend_pid": self.backend.pid,
             "frontend_pid": self.frontend.pid,
+            "run_id": self.run_id,
         }, indent=2), encoding="utf-8")
 
     def _wait_for(self, url: str, timeout: float = 30) -> None:
@@ -87,6 +99,11 @@ class AppServices:
     def close(self) -> None:
         for process in (self.frontend, self.backend):
             if process is None or process.poll() is not None:
+                continue
+            if os.name == "nt":
+                subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                               capture_output=True, check=False)
+                process.wait(timeout=10)
                 continue
             try:
                 os.killpg(process.pid, signal.SIGTERM)

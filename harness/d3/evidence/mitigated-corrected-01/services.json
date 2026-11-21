@@ -1,0 +1,7 @@
+{
+  "backend_url": "http://127.0.0.1:18761",
+  "frontend_url": "http://127.0.0.1:18762",
+  "backend_pid": 40268,
+  "frontend_pid": 29400,
+  "run_id": "ba1e8419bc594d2fa6d9e552e7bcc869"
+}
