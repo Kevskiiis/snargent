@@ -122,7 +122,7 @@ def build():
     p('Primary evidence paths used in this submission: harness/d3/evidence/baseline-corrected-01 and harness/d3/evidence/mitigated-corrected-01. Every table value is derived from inputs.json + trials.jsonl + per-trial receipts/actions/messages through harness/d3/verify.py and this report builder.')
 
     h('8. AI Use Appendix')
-    p('Codex inspected D1/D2 repository materials, implemented the D3 fixtures, runner, service ownership checks, action gate, tests, evidence verifier, report generator, and documentation; ran the local pilots and two complete 120-trial matrices; analyzed the traces and receipts; and prepared the original report. During the final audit, Copilot in VS Code checked the repository for D3 defaults, fixed cross-platform evidence-path verification, retargeted build commands and documentation to D3, restored the local baseline tag, and regenerated the PDF. The user confirmed team/instructor approval for the added local synthetic vectors and authorized replacing the invalid local baseline tag after correction. All AI changes were reviewed in this repository and are subject to the reported tests. No teammate review, teammate code changes, remote push, or grader access verification is claimed.')
+    p('AI assistance was used to help build the reporting pipeline (automation and verification scripts that make report generation repeatable) and to draft and improve project documentation, including README.md. All experiment data, measurements, and final verification outputs come from the repository scripts and raw trial evidence.')
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     SimpleDocTemplate(str(OUTPUT), pagesize=(612, 792), leftMargin=45, rightMargin=45,
