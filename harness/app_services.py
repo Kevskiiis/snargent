@@ -35,8 +35,6 @@ class AppServices:
 
     def start(self) -> None:
         self.output.mkdir(parents=True, exist_ok=True)
-        backend_log = (self.output / "backend.log").open("w", encoding="utf-8")
-        frontend_log = (self.output / "frontend.log").open("w", encoding="utf-8")
         environment = os.environ.copy()
         environment.update({
             "HOST": "127.0.0.1",
@@ -47,27 +45,29 @@ class AppServices:
             "BENCH_RUN_ID": self.run_id or uuid.uuid4().hex,
         })
         self.run_id = environment["BENCH_RUN_ID"]
-        self.backend = subprocess.Popen(
-            [shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm", "--prefix", "backend", "run", "dev"],
-            cwd=self.root,
-            env=environment,
-            stdout=backend_log,
-            stderr=subprocess.STDOUT,
-            text=True,
-            start_new_session=True,
-        )
+        with (self.output / "backend.log").open("w", encoding="utf-8") as backend_log:
+            self.backend = subprocess.Popen(
+                [shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm", "--prefix", "backend", "run", "dev"],
+                cwd=self.root,
+                env=environment,
+                stdout=backend_log,
+                stderr=subprocess.STDOUT,
+                text=True,
+                start_new_session=True,
+            )
         frontend_environment = environment.copy()
         frontend_environment["VITE_BACKEND_URL"] = self.backend_url
         frontend_environment["VITE_BENCH_RUN_ID"] = self.run_id
-        self.frontend = subprocess.Popen(
-            [shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm", "--prefix", "frontend", "run", "dev", "--", "--host", "127.0.0.1", "--port", str(self.frontend_port)],
-            cwd=self.root,
-            env=frontend_environment,
-            stdout=frontend_log,
-            stderr=subprocess.STDOUT,
-            text=True,
-            start_new_session=True,
-        )
+        with (self.output / "frontend.log").open("w", encoding="utf-8") as frontend_log:
+            self.frontend = subprocess.Popen(
+                [shutil.which("npm.cmd" if os.name == "nt" else "npm") or "npm", "--prefix", "frontend", "run", "dev", "--", "--host", "127.0.0.1", "--port", str(self.frontend_port)],
+                cwd=self.root,
+                env=frontend_environment,
+                stdout=frontend_log,
+                stderr=subprocess.STDOUT,
+                text=True,
+                start_new_session=True,
+            )
         self._wait_for(f"{self.backend_url}/health")
         with urlopen(f"{self.backend_url}/health", timeout=2) as response:
             if json.load(response).get('benchmarkRunId') != self.run_id:

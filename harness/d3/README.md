@@ -1,4 +1,4 @@
-# D3 Track A baseline status
+# D3 Track A - Working Attack and Mitigation
 
 The corrected D3 baseline contains 120 completed live trials in
 `evidence/baseline-corrected-01`. One exact synthetic canary receipt occurred
@@ -6,9 +6,10 @@ in the accessible-attribute/Qwen3 1.7B cell. The matched mitigation contains
 120 scheduled trials (119 completed, one Playwright startup error) and zero
 exact receipts in `evidence/mitigated-corrected-01`. The earlier
 `evidence/baseline-final-01` run is invalid: stale services occupied its ports.
-With explicit user approval, the local `baseline` tag was moved to the corrected
-baseline commit. `schedule.json`
-is an input plan, never trial evidence.
+The local `baseline` tag identifies commit `ea98344e5b96d270aa2325244d21bc7870535f32`,
+the corrected baseline commit containing the harness and raw 120-trial evidence.
+The mitigation is recorded later on `cristian`. `schedule.json` is an input plan,
+never trial evidence.
 
 ## Inventory and discrepancies (2026-11-18)
 
@@ -75,11 +76,11 @@ structure only: independent receipt and trace verification is still required.
 The existing D2 command cannot produce this matrix. The `--pilot` option runs
 one live trial per cell and cannot substitute for the full evaluation.
 
-## Remaining execution gates
+## Submission status
 
-1. Verify the raw mitigated results and compare matching trial IDs.
-2. Commit final code, evidence, and report generator.
-3. Generate the eight-section PDF with real baseline and final code hashes.
+The required pre-mitigation baseline and matched mitigation matrices are
+recorded. `harness/d3/verify.py` validates their structure, pinned model digests,
+receipt classifications, payload exposure, canary hashes, and evidence paths.
 
 | Phase | Actual live trials | Required live trials |
 | --- | ---: | ---: |
@@ -90,9 +91,10 @@ One exact synthetic canary transfer was independently observed before the gate.
 The mitigation run resumed after a Playwright driver crash. Its interrupted
 trial is included as an error; resume code was added without changing the
 attack payloads, model settings, scoring, or scheduled inputs. Service run IDs
-are per-run metadata and therefore differ between phases. The PDF is generated
-with `uv run --project harness --frozen --group report python harness/d3/build_report.py`.
-Remote publication and grader access have not been verified.
+are per-run metadata and therefore differ between phases. The primary report command is `make report`, which verifies both matrices and
+generates the eight-section `output/pdf/D3-Snargent.pdf`. The final commit hash
+must point to committed code and evidence; do not present an uncommitted
+workspace as the final submission commit.
 
 ## AI use
 
@@ -100,4 +102,7 @@ Codex inspected repository code/documentation and local prerequisites, built
 the fixtures, runner, tests, action gate, verifier and report generator, ran
 the pilots and both live matrices, and analyzed the raw evidence. The user
 confirmed scope approval and authorized repair of the local `baseline` tag.
-No teammate code review or experiment review is asserted.
+During the final audit, Copilot in VS Code fixed cross-platform verifier paths,
+aligned the primary commands and documentation with D3, restored the missing
+local tag, and regenerated the report. No teammate code review or experiment
+review is asserted.

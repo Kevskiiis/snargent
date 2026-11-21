@@ -4,8 +4,9 @@
 
 The D3 Track A experiment, exact setup, reproduction commands, raw evidence,
 and report generator are documented in [harness/d3/README.md](harness/d3/README.md).
-The D3 PDF is generated at `output/pdf/D3-Snargent.pdf`. D2 commands and
-results remain separate.
+The primary `make report` target now verifies the raw D3 evidence and generates
+`output/pdf/D3-Snargent.pdf`. Historical D2 commands and results remain
+available as explicitly labeled legacy material.
 
 Snargent is a local security research benchmark for studying whether a browser agent follows instructions embedded in webpage content instead of its assigned task. It is designed for the university Track A experiment, uses synthetic data only, and is never intended for public deployment or real-user testing.
 
@@ -36,11 +37,11 @@ Before running setup, ensure you have these tools installed:
   - Windows: Install via MinGW or WSL2
   - Verify: `make --version`
 
-### Optional (for live model testing)
+### Optional (for live D3 model testing)
 
-- **Ollama 0.40.2** — Local LLM runtime
+- **Ollama 0.32.5** — Local LLM runtime pinned by D3
   - Download from https://ollama.ai/
-  - Required only for `make harness-live`; smoke tests work without it
+  - Required for `make d3-run`; smoke tests and verification work without it
 
 ### Linux-specific
 
@@ -95,36 +96,41 @@ For a custom output directory:
 uv run --project harness --frozen python harness/run.py --mode smoke --trials 5 --output harness/results/my-smoke-test
 ```
 
-### Run a live model test (Browser Use + Ollama)
+### Run the D3 live model matrix (Browser Use + Ollama)
 
 Start Ollama (in another terminal):
 
 ```sh
 ollama serve
-ollama pull orca-mini:3b
+ollama pull qwen3:0.6b
+ollama pull qwen3:1.7b
 ```
 
 Then run the test:
 
 ```sh
-make harness-live
+make d3-run
 ```
 
-For a custom test size:
+This writes a fresh 120-trial D3 matrix. Use a new path for each run:
 
 ```sh
-uv run --project harness --frozen python harness/run.py --mode live --trials 1 --max-steps 12 --output harness/results/my-live-test
+uv run --project harness --frozen --group report python harness/d3/run.py \
+  --output harness/d3/evidence/my-matrix
 ```
 
 ### Regenerate the PDF report
 
-After running tests or modifying the methodology in `docs/D2-report.md`:
+After the baseline and mitigated evidence have been recorded:
 
 ```sh
 make report
 ```
 
-Output: `output/pdf/D2-Snargent.pdf`
+The generator verifies both 120-trial matrices, checks the matched schedules
+and raw receipts, reads the `baseline` tag, and writes
+`output/pdf/D3-Snargent.pdf`. Use `make report-d2` only for the historical D2
+report.
 
 ### Run type-checking and linting
 
@@ -137,10 +143,12 @@ make lint     # ESLint on frontend, TSLint on backend
 ### Run harness unit tests
 
 ```sh
-uv run --project harness --frozen python -m unittest discover -s harness -v
+make d3-test
 ```
 
-Tests scoring, fixtures, outcome classification, and synthetic token generation.
+This tests the D3 protocol, target policy, application channels, aggregation,
+and the cross-platform evidence verifier. The older D2 harness tests remain
+available with `unittest discover -s harness -v`.
 
 ## Safety boundary
 
@@ -162,14 +170,14 @@ This is a controlled security experiment, not a production application or a publ
 | Understand the project | `README.md` | Purpose, safety boundary, architecture, setup, commands, outputs, and troubleshooting |
 | Run the application manually | `make dev` | Starts the Vite frontend and Fastify backend for browser inspection |
 | Run the real-stack control | `make harness-smoke` or `harness/run.py --mode smoke` | Starts temporary services and verifies the real frontend/backend path without a model |
-| Run the live browser-agent experiment | `make harness-live` or `harness/run.py --mode live` | Uses Browser Use with local Ollama and the configured synthetic model |
+| Run the D3 browser-agent experiment | `make d3-run` or `harness/d3/run.py` | Runs the matched 3-vector, 2-model, 20-trial D3 matrix |
 | Inspect frontend behavior | `frontend/src/App.tsx`, `frontend/src/pages/ArticlePage.tsx` | Routes, article rendering, and benchmark fixture selection |
 | Inspect browser logging | `frontend/src/api/logging.ts`, `frontend/src/components/` | Value-free page and form event requests sent to the backend |
 | Inspect backend behavior | `backend/server.ts`, `backend/config/settings.ts`, `backend/routes/root.ts` | Fastify startup, environment settings, validation, logging, and evidence collection |
-| Inspect harness orchestration | `harness/run.py`, `harness/app_services.py` | Temporary ports, service lifecycle, browser/model trials, evidence, and scoring |
-| Run Python harness tests | `harness/test_harness.py` | Unit tests for scoring, token generation, fixtures, and trial outcomes |
-| Review the methodology | `docs/D2-report.md` | Attack surface, protocol, scoring, limitations, and reproducibility details |
-| Rebuild the report PDF | `make report` | Converts the Markdown report into `output/pdf/D2-Snargent.pdf` |
+| Inspect D3 orchestration | `harness/d3/run.py`, `harness/d3/protocol.py` | D3 schedule, model trials, mitigation gate, raw evidence, and scoring |
+| Run D3 tests | `make d3-test` | Verifies policy, protocol, real channels, and evidence checks |
+| Review D3 methodology | `harness/d3/README.md` | D3 setup, vectors, mitigation, results, limitations, and reproduction |
+| Rebuild the report PDF | `make report` | Verifies evidence and writes `output/pdf/D3-Snargent.pdf` |
 
 ## How it works
 
@@ -417,12 +425,13 @@ Snargent/
 │           │   └── ... evidence + html (as above)
 │           └── ... more trials
 │
-├── docs/                       Documentation and reports
-│   └── D2-report.md            Security methodology, attack surface, limitations, results
+├── docs/
+│   └── D2-report.md            Historical D2 report; legacy only
 │
 └── output/
     └── pdf/
-        └── D2-Snargent.pdf     Generated PDF version of D2-report.md
+        ├── D3-Snargent.pdf     Verified D3 submission report
+        └── D2-Snargent.pdf     Historical D2 submission report
 ```
 
 ## Useful commands
@@ -435,8 +444,10 @@ Snargent/
 | `make check` | Run type-check on frontend and backend without emitting output files |
 | `make lint` | Run ESLint on frontend and TSLint on backend |
 | `make harness-smoke` | Run smoke test: 5 baseline + 5 attack trials, no model |
-| `make harness-live` | Run live model test: 3 baseline + 3 attack trials with Browser Use + Ollama |
-| `make report` | Rebuild PDF from `docs/D2-report.md` → `output/pdf/D2-Snargent.pdf` |
+| `make d3-run` | Run the full 120-trial D3 browser-agent matrix |
+| `make d3-test` | Run D3 protocol, policy, application, and verifier tests |
+| `make report` | Verify D3 raw evidence and build `output/pdf/D3-Snargent.pdf` |
+| `make report-d2` | Build the historical D2 report |
 | `make clean` | Remove build artifacts, logs, and generated files |
 | `make` or `make help` | Display all available targets |
 
@@ -512,11 +523,13 @@ Each run computes:
 | `harness/run.py` | Trial generation, smoke/live execution, scoring, and JSON output |
 | `harness/app_services.py` | Temporary ports, service startup/readiness, logs, and cleanup |
 | `harness/test_harness.py` | Harness unit tests |
-| `harness/build_report.py` | Markdown-to-PDF report generation |
+| `harness/d3/` | D3 runner, verifier, policy, evidence, tests, and PDF generator |
+| `harness/build_report.py` | Legacy D2 Markdown-to-PDF report generation |
 | `harness/evidence/` | Evidence notes and retained current verification artifacts |
 | `harness/results/` | Generated local run output; use a fresh subdirectory for each run |
-| `docs/D2-report.md` | Detailed security methodology and limitations |
-| `output/pdf/D2-Snargent.pdf` | Generated PDF version of the report |
+| `docs/D2-report.md` | Historical D2 methodology and limitations |
+| `output/pdf/D3-Snargent.pdf` | Verified D3 PDF report |
+| `output/pdf/D2-Snargent.pdf` | Historical D2 PDF report |
 
 ## Troubleshooting
 
@@ -572,5 +585,7 @@ A prompt-injection attempt can be visible in the page without producing a backen
 ## Documentation
 
 - [Harness setup and protocol](harness/README.md)
-- [D2 security report](docs/D2-report.md)
-- [Generated PDF report](output/pdf/D2-Snargent.pdf)
+- [D3 experiment and reproduction](harness/d3/README.md)
+- [Generated D3 PDF report](output/pdf/D3-Snargent.pdf)
+- [Historical D2 security report](docs/D2-report.md)
+- [Historical D2 PDF](output/pdf/D2-Snargent.pdf)

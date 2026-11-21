@@ -1,4 +1,4 @@
-.PHONY: dev install build check lint clean backend-build frontend-build backend-check frontend-lint preview harness-smoke harness-live report
+.PHONY: dev install build check lint clean backend-build frontend-build backend-check frontend-lint preview harness-smoke harness-live d3-test d3-run report report-d2
 
 FRONTEND_DIR := frontend
 BACKEND_DIR := backend
@@ -50,5 +50,14 @@ harness-smoke:
 harness-live:
 	uv run --project harness --frozen python harness/run.py --mode live --trials 3 --output harness/results/live
 
+d3-test:
+	uv run --project harness --frozen --group report python -m unittest discover -s harness/d3 -v
+
+d3-run:
+	uv run --project harness --frozen --group report python harness/d3/run.py --output harness/d3/evidence/new-matrix
+
 report:
-	uv run --project harness --frozen python harness/build_report.py
+	uv run --project harness --frozen --group report python harness/d3/build_report.py
+
+report-d2:
+	uv run --project harness --frozen --group report python harness/build_report.py

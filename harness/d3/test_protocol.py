@@ -1,5 +1,8 @@
 import unittest
+from pathlib import Path
+import tempfile
 from protocol import aggregate, schedule
+from verify import resolve_evidence_path
 
 
 class ProtocolTests(unittest.TestCase):
@@ -31,6 +34,30 @@ class ProtocolTests(unittest.TestCase):
         rows[0]['mode'] = 'smoke'
         with self.assertRaisesRegex(ValueError, 'live'):
             aggregate(plans, rows)
+
+    def test_evidence_paths_accept_windows_and_posix_separators(self):
+        with tempfile.TemporaryDirectory() as root:
+            directory = Path(root) / 'harness' / 'd3' / 'evidence' / 'run'
+            path = directory / 'trial' / 'messages.jsonl'
+            path.parent.mkdir(parents=True)
+            path.write_text('')
+            stored_windows = str(path.relative_to(directory.parents[4])).replace('/', '\\')
+            stored_posix = path.relative_to(directory.parents[4]).as_posix()
+
+            original_root = __import__('verify').ROOT
+            __import__('verify').ROOT = directory.parents[4]
+            try:
+                self.assertEqual(resolve_evidence_path(stored_windows, directory), path.resolve())
+                self.assertEqual(resolve_evidence_path(stored_posix, directory), path.resolve())
+            finally:
+                __import__('verify').ROOT = original_root
+
+    def test_evidence_paths_cannot_escape_the_run_directory(self):
+        with tempfile.TemporaryDirectory() as root:
+            directory = Path(root) / 'evidence' / 'run'
+            directory.mkdir(parents=True)
+            with self.assertRaisesRegex(ValueError, 'unsafe'):
+                resolve_evidence_path('../outside.json', directory)
 
 
 if __name__ == '__main__':

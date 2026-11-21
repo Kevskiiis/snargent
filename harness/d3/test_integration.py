@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 class ApplicationControls(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        (ROOT / 'tmp').mkdir(exist_ok=True)
         cls.temp = tempfile.TemporaryDirectory(dir=ROOT / 'tmp')
         cls.token = 'SYNTHETIC-integration-control'
         cls.services = start_services(ROOT, Path(cls.temp.name),

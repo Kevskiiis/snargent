@@ -3772,7 +3772,7 @@ wheels = [
 ]
 
 [[package]]
-name = "snargent-d2"
+name = "snargent-d3"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
